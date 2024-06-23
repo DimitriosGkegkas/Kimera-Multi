@@ -38,11 +38,11 @@
   <!-- <arg name="path_to_vocab"           default="$(find kimera_vio)/vocabulary/ORBvoc.yml"/> -->
 
   <!-- Subscribed Topics -->
-  <arg name="left_cam_topic"      default="/$(arg robot_name)/forward/infra1/image_rect_raw"/>
-  <arg name="right_cam_topic"     default="/$(arg robot_name)/forward/infra2/image_rect_raw"/>
-  <arg name="color_cam_topic"     default="/$(arg robot_name)/forward/color/image_raw"/>
-  <arg name="imu_topic"           default="/$(arg robot_name)/forward/imu"/>
-  <arg name="external_odom_topic" default="/$(arg robot_name)/jackal_velocity_controller/odom"/>
+  <arg name="left_cam_topic"      default="/airsim_node/$(arg robot_name)/front_left_custom/Scene"/>
+  <arg name="right_cam_topic"     default="/airsim_node/$(arg robot_name)/front_right_custom/Scene"/>
+  <arg name="color_cam_topic"     default="/airsim_node/$(arg robot_name)/front_right_custom/Scene"/>
+  <arg name="imu_topic"           default="/airsim_node/$(arg robot_name)/imu/Imu"/>
+  <arg name="external_odom_topic" default="/airsim_node/$(arg robot_name)/odom_local_ned"/>
 
   <!-- frame information -->
   <arg name="map_frame_id"      value="$(arg robot_name)/map"/>
@@ -59,15 +59,6 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_realsense" args="0 0 -0.2 0 0 0 $(arg robot_name)/realsense_base $(arg robot_name)/base" />
     <!-- for arl jackals -->
     <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_realsense" args="0 0.5 -0.2 1.59 -1.59 0 $(arg robot_name)/realsense_base $(arg robot_name)/base" /> -->
-
-
-    <!-- Decompress images -->
-    <node if="$(arg replay)" pkg="image_transport" type="republish" name="left_img_decompress" 
-      args="compressed in:=$(arg left_cam_topic) raw out:=$(arg left_cam_topic)" />
-    <node if="$(arg replay)" pkg="image_transport" type="republish" name="right_img_decompress" 
-      args="compressed in:=$(arg right_cam_topic) raw out:=$(arg right_cam_topic)" />
-    <!-- <node if="$(arg replay)" pkg="image_transport" type="republish" name="color_img_decompress" 
-      args="compressed in:=$(arg color_cam_topic) raw out:=$(arg color_cam_topic)" /> -->
   </group>  <!-- ns="$(arg robot_name)" -->
 
 </launch>

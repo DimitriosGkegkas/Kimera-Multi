@@ -1,0 +1,57 @@
+session_name: kimera-distributed-example
+
+environment:
+  ROBOT0: "drone_1"
+  ROBOT1: "drone_2"
+  RATE: "1.0"
+  NUM_ROBOTS: "2"
+  BOW_SKIP_NUM: "3"
+  DATASET_NAME: "Jackal"
+  CATKIN_WS: "~/ros1_workspace"
+  LOG_DIR: "~/ros1_workspace/logs"
+
+options:
+  default-command: /bin/bash
+
+windows:
+- window_name: admin
+  layout: tiled  
+  shell_command_before:
+    - source $CATKIN_WS/devel/setup.bash
+
+  panes:
+    - roscore
+    - sleep 5; rqt
+    - sleep 5; rviz -d $(rospack find kimera_distributed)/rviz/single_machine.rviz
+
+- window_name: airsim
+  layout: tiled  
+  shell_command_before:
+    - source $CATKIN_WS/devel/setup.bash
+    - source ~/AirSim/ros/devel/setup.bash
+    - sleep 10;
+
+  panes:
+    - roslaunch airsim_ros_pkgs airsim_node.launch
+
+- window_name: robot1
+  layout: tiled  
+  shell_command_before:
+    - source $CATKIN_WS/devel/setup.bash
+    - sleep 10;
+
+  panes:
+    - roslaunch kimera_distributed kimera_distributed.launch robot_id:=0 robot_name:=$ROBOT0 num_robots:=2 dataset_name:=$DATASET_NAME robot_names_config:=robot_names_sim
+    - roslaunch kimera_distributed dpgo.launch robot_id:=0 robot_name:=$ROBOT0 num_robots:=2 dataset_name:=$DATASET_NAME multi_master:=false robot_names_config:=robot_names_sim
+    - roslaunch kimera_multi kimera_vio_sim.launch robot_id:=0 robot_name:=$ROBOT0 use_d455:=true multirobot:=true lcd_no_optimize:=true use_external_odom:=true replay:=true should_use_sim_time:=true
+
+- window_name: robot2
+  layout: tiled  
+  shell_command_before:
+    - source $CATKIN_WS/devel/setup.bash
+    - sleep 10;
+
+  panes:
+    - roslaunch kimera_distributed kimera_distributed.launch robot_id:=1 robot_name:=$ROBOT1 num_robots:=2 dataset_name:=$DATASET_NAME robot_names_config:=robot_names_sim
+    - roslaunch kimera_distributed dpgo.launch robot_id:=1 robot_name:=$ROBOT1 num_robots:=2 dataset_name:=$DATASET_NAME multi_master:=false robot_names_config:=robot_names_sim
+    - roslaunch kimera_multi kimera_vio_sim.launch robot_id:=1 robot_name:=$ROBOT1 use_d455:=true multirobot:=true lcd_no_optimize:=true use_external_odom:=true replay:=true should_use_sim_time:=true

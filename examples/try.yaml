@@ -1,0 +1,80 @@
+session_name: kimera-distributed-example
+
+environment:
+  DATA_PATH: "/home/dimitris/datasets/euroc"
+  CATKIN_WS: "~/ros1_workspace"
+  LOG_DIR: "~/ros1_workspace/logs"
+  VOCAB_PATH: "/home/dimitris/ros1_workspace/src/kimera_vio/vocabulary/ORBvoc.yml"
+  DATASET_NAME: "Euroc"
+
+  ROBOT0: "robot1"
+  ROSBAG0: "/home/dimitris/datasets/euroc/V1_01_easy.bag"
+  
+  ROBOT1: "robot2"
+  ROSBAG1: "/home/dimitris/datasets/euroc/V1_02_medium.bag"
+  RATE: "1.0"
+  NUM_ROBOTS: "2"
+  BOW_SKIP_NUM: "3"
+
+options:
+  default-command: /bin/bash
+
+windows:
+- window_name: frontend
+  layout: tiled  
+  shell_command_before:
+    - source /opt/ros/noetic/setup.bash
+    - source $CATKIN_WS/devel/setup.bash
+    - mkdir -p $LOG_DIR/$ROBOT0/distributed
+    - mkdir -p $LOG_DIR/$ROBOT1/distributed
+    - sleep 5;
+  panes:
+    - roslaunch kimera_distributed kimera_distributed.launch robot_id:=0 robot_name:=$ROBOT0 num_robots:=$NUM_ROBOTS dataset_name:=$DATASET_NAME log_output_path:=$LOG_DIR/$ROBOT0/distributed vocab_path:=$VOCAB_PATH
+    - roslaunch kimera_distributed kimera_distributed.launch robot_id:=1 robot_name:=$ROBOT1 num_robots:=$NUM_ROBOTS dataset_name:=$DATASET_NAME log_output_path:=$LOG_DIR/$ROBOT1/distributed vocab_path:=$VOCAB_PATH
+
+- window_name: dpgo
+  layout: tiled
+  shell_command_before:
+    - source /opt/ros/noetic/setup.bash
+    - source $CATKIN_WS/devel/setup.bash
+    - sleep 30;
+
+  panes:
+    - roslaunch kimera_distributed dpgo.launch robot_id:=0 robot_name:=$ROBOT0 num_robots:=$NUM_ROBOTS dataset_name:=$DATASET_NAME multi_master:=true log_output_path:=$LOG_DIR/$ROBOT0/distributed
+    - roslaunch kimera_distributed dpgo.launch robot_id:=1 robot_name:=$ROBOT1 num_robots:=$NUM_ROBOTS dataset_name:=$DATASET_NAME multi_master:=true log_output_path:=$LOG_DIR/$ROBOT1/distributed
+
+- window_name: vio
+  layout: tiled  
+  shell_command_before:
+    - source /opt/ros/noetic/setup.bash
+    - source $CATKIN_WS/devel/setup.bash
+    - sleep 5;
+
+  panes:
+    - roslaunch kimera_multi kimera_vio_euroc.launch robot_name:=$ROBOT0 robot_id:=0 should_use_sim_time:=true  
+    #use_d455:=true multirobot:=true lcd_no_optimize:=true use_external_odom:=true replay:=true should_use_sim_time:=true
+    - roslaunch kimera_multi kimera_vio_euroc.launch robot_name:=$ROBOT1 robot_id:=1 should_use_sim_time:=true  
+    #use_d455:=true multirobot:=true lcd_no_optimize:=true use_external_odom:=true replay:=true should_use_sim_time:=true
+
+- window_name: data
+  focus: true  
+  layout: tiled  
+  shell_command_before:
+    - source /opt/ros/noetic/setup.bash
+    - source $CATKIN_WS/devel/setup.bash
+
+  panes:
+    - sleep 15; roslaunch kimera_distributed euroc_rosbag.launch bagfile:=$ROSBAG0 robot_name:=$ROBOT0 rate:=$RATE
+    - sleep 15; roslaunch kimera_distributed euroc_rosbag.launch bagfile:=$ROSBAG1 robot_name:=$ROBOT1 rate:=$RATE 
+    
+- window_name: admin
+  focus: true  
+  layout: tiled  
+  shell_command_before:
+    - source /opt/ros/noetic/setup.bash
+    - source $CATKIN_WS/devel/setup.bash
+
+  panes:
+    - roscore
+    - sleep 5; rviz -d $(rospack find kimera_distributed)/rviz/single_machineMy.rviz
+    - rosnode kill -a \

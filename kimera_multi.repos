@@ -17,7 +17,7 @@ repositories:
     version: master
   dpgo:
     type: git
-    url: git@github.com:mit-acl/dpgo.git
+    url: git@github.com:DimitriosGkegkas/dpgo.git
     version: main
   dpgo_ros:
     type: git
@@ -49,7 +49,7 @@ repositories:
     version: master
   kimera_distributed:
     type: git
-    url: git@github.com:MIT-SPARK/Kimera-Distributed.git
+    url: git@github.com:DimitriosGkegkas/Kimera-Distributed.git
     version: main
   kimera_multi_lcd:
     type: git

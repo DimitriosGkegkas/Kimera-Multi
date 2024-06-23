@@ -1,0 +1,31 @@
+session_name: kimera-distributed-example
+
+environment:
+  CATKIN_WS: "~/ros1_workspace"
+  LOG_DIR: "~/ros1_workspace/logs"
+
+options:
+  default-command: /bin/bash
+
+windows:
+- window_name: admin
+  layout: tiled  
+  shell_command_before:
+    - source $CATKIN_WS/devel/setup.bash
+
+  panes:
+    - roscore
+    - sleep 5; rqt
+    - sleep 5; rviz -d $(rospack find kimera_pgmo)/rviz/uHumans2.rviz
+
+- window_name: frontend
+  layout: tiled  
+  shell_command_before:
+    - source $CATKIN_WS/devel/setup.bash
+    - sleep 10;
+
+  panes:
+    - roslaunch kimera_vio_ros kimera_vio_ros_uhumans2.launch
+    - roslaunch kimera_pgmo kimera_pgmo.launch dataset:=uHumans2
+    - roslaunch kimera_semantics_ros kimera_semantics_uHumans2.launch
+    - rosbag play /home/dimitris/datasets/uHumans2_apartment_s1_00h.bag --clock --pause
